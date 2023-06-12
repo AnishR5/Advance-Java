@@ -10,23 +10,27 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
+import Dao.CandidateDaoimpl;
 import Dao.UserDao;
 import Dao.UserDaoimpl;
 import Pojo.User;
 
 
-@WebServlet("/login")
+@WebServlet(value="/login", loadOnStartup = 1)
 public class loginservlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	private UserDaoimpl daobject;
+	private UserDaoimpl userdaobject;
+	private CandidateDaoimpl  candidatedaobject;
 	
 	public void init(ServletConfig config) throws ServletException {
 		
 		try {
-			daobject= new UserDaoimpl();
+			userdaobject= new UserDaoimpl();
+			candidatedaobject=new CandidateDaoimpl();
 		}catch(Exception e) {
-			throw new ServletException();
+			throw new ServletException("err in init of " + getClass(), e);
 		}
 		
 	}
@@ -34,10 +38,11 @@ public class loginservlet extends HttpServlet {
 	
 	public void destroy() {
 		try {
-			daobject.cleanUp();
+			userdaobject.cleanUp();
+			candidatedaobject.cleanUp();
 		}
 		catch(Exception e) {
-			System.out.println("error in destroy method");
+			System.out.println("error in destroy method"+ getClass()+" "+ e);
 		}
 		
 	}
@@ -50,11 +55,15 @@ public class loginservlet extends HttpServlet {
 		{
 			String email=request.getParameter("em");
 			String password=request.getParameter("pass");
-			User user=daobject.authenticateUser(email, password);
+			User user=userdaobject.authenticateUser(email, password);
 			if(user==null) {
 				pw.print("<h3>Invalid email and password</h3>");
 			}
 			else {
+				HttpSession hs=request.getSession();
+				hs.setAttribute("user_details", user);
+				hs.setAttribute("user_dao", userdaobject);
+				hs.setAttribute("candidate_dao", candidatedaobject);
 				pw.print("<h3>Valid user: "+user+"</h3>");
 				
 				if(user.getRole().equals("admin")) {
@@ -73,7 +82,7 @@ public class loginservlet extends HttpServlet {
 			}
 			
 		}catch(Exception e) {
-			throw new ServletException();
+			throw new ServletException("err in init of " + getClass(), e);
 		}
 		
 	}
