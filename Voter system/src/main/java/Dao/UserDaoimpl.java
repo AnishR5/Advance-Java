@@ -10,7 +10,7 @@ import Pojo.User;
 public class UserDaoimpl implements UserDao {
 	private Connection cn;
 	private PreparedStatement pst1;
-	private PreparedStatement pst2;
+	private PreparedStatement pst2,pst3;
 	//private PreparedStatement pst3;
 	
 	public UserDaoimpl() throws SQLException {
@@ -19,7 +19,7 @@ public class UserDaoimpl implements UserDao {
 		pst1=cn.prepareStatement("select * from users where email=? and password=?");
 		// id | first_name | last_name | email             | password | dob        | status | role
 		pst2=cn.prepareStatement("insert into users(first_name,last_name,email,password,dob,status,role) values (?,?,?,?,?,0,'voter')");
-		
+		pst3=cn.prepareStatement("update users set status=1 where id=?");
 		
 		System.out.println("User dao created");
 		
@@ -66,6 +66,16 @@ public class UserDaoimpl implements UserDao {
 		else
 			return "fail";
 
+	}
+	
+	public int updateVotingStatus(int id) throws SQLException {
+		pst3.setInt(1, id);
+		int votingstatus=pst3.executeUpdate();
+		if(votingstatus==1) {
+			return 1;
+		}
+		return 0;
+		
 	}
 	
 	public void cleanUp() throws SQLException
