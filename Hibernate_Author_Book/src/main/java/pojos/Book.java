@@ -10,7 +10,7 @@ public class Book extends BaseEntity {
 	private String title;
 	@Column(nullable = false )
 	private double price;
-	@OneToOne
+	@ManyToOne
 	@JoinColumn(name = "author_id")
 	private Author authorId;
 	
